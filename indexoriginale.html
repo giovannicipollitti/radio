@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="icon" href="/favicon.png" type="image/png">
+  <title>Radio Esercito</title>
+  <style>
+    :root {
+      --accent: #c8102e;
+      --muted: #9aa0a6;
+      --gradient: linear-gradient(135deg, #c8102e, #ff3b3b);
+      color-scheme: dark;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: url('sfondo.jpg') center center / cover no-repeat fixed;
+    }
+
+    .page {
+      min-height: 100%;
+      backdrop-filter: brightness(0.7) blur(2px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header.banner {
+      background: rgba(0, 0, 0, 0);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0);
+    }
+
+    header.banner img.logo {
+      height: 56px;
+      width: auto;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    header.banner .brand {
+      display: flex;
+      flex-direction: column;
+    }
+
+    header.banner .brand .site {
+      font-weight: 700;
+      letter-spacing: .6px;
+	  color: yellow;
+    }
+
+    header.banner .brand .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 20px;
+      text-align: center;
+      color: #fff;
+    }
+
+    h1.title {
+      margin: 16px 0 6px;
+      font-size: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1.title img.logo {
+      height: 200px;
+      width: auto;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+
+    p.stream-url {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-family: monospace;
+      word-break: anywhere;
+    }
+
+    .player-wrap {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0 6px 30px rgba(0, 0, 0, .6);
+      min-width: 320px;
+      max-width: 720px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    audio {
+      width: 100%;
+      outline: none;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px;
+      accent-color: var(--accent);
+      position: relative;
+      z-index: 1;
+    }
+
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 16px;
+      height: 24px;
+    }
+
+    .bar {
+      width: 6px;
+      background: var(--gradient);
+      animation: bounce 1s infinite ease-in-out;
+      border-radius: 2px;
+    }
+
+    .bar:nth-child(1) { animation-delay: 0s; }
+    .bar:nth-child(2) { animation-delay: 0.2s; }
+    .bar:nth-child(3) { animation-delay: 0.4s; }
+    .bar:nth-child(4) { animation-delay: 0.6s; }
+    .bar:nth-child(5) { animation-delay: 0.8s; }
+
+    @keyframes bounce {
+      0%, 100% { height: 4px; opacity: 0.6; }
+      50% { height: 24px; opacity: 1; }
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0);
+      padding: 14px 20px;
+      text-align: center;
+      color: var(--muted);
+	  color: yellow;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="banner">
+      <img class="logo" src="logo.png" alt="Logo">
+      <div class="brand">
+        <div class="site">Radio Esercito</div>
+        <div class="subtitle">Streaming ufficiale</div>
+      </div>
+    </header>
+
+    <main>
+      <h1 class="title">
+        <img class="logo" src="logo1.jpg" alt="Logo">
+        Radio Esercito — Live Stream
+      </h1>
+
+
+      <div class="player-wrap" role="region" aria-label="Player radio">
+        <audio id="radioPlayer" controls preload="none">
+          <source src="http://radio.esercito.difesa.it:8000/stream" type="audio/mpeg">
+          Il tuo browser non supporta l'elemento audio.
+        </audio>
+        <div class="equalizer" id="equalizer">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      &copy; <span id="year"></span> Radio Esercito — Powered by Cipollitti
+    </footer>
+  </div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const player = document.getElementById('radioPlayer');
+  const bars = document.querySelectorAll('.bar');
+
+  // funzione che avvia/ferma l'equalizzatore
+  function setEqualizer(running) {
+    bars.forEach(bar => bar.style.animationPlayState = running ? 'running' : 'paused');
+  }
+
+  // prova ad auto-play; se viene bloccato, mostra overlay con bottone play
+  async function tryAutoplay() {
+    try {
+      // alcuni browser bloccheranno, ma tentiamo comunque
+      await player.play();
+      setEqualizer(true); // avviato con successo
+    } catch (err) {
+      // autoplay bloccato: mostra overlay con play
+      showPlayOverlay();
+    }
+  }
+
+  // overlay grande al centro per invitare l'utente a fare click
+  function showPlayOverlay() {
+    if (document.getElementById('playOverlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'playOverlay';
+    overlay.innerHTML = `
+      <button id="bigPlayBtn" aria-label="Riproduci" title="Riproduci">▶︎</button>
+    `;
+    Object.assign(overlay.style, {
+      position: 'fixed',
+      inset: '0',
+      display: 'flex',
+      'alignItems': 'center',
+      'justifyContent': 'center',
+      'background': 'rgba(0,0,0,0.35)',
+      'zIndex': 9999
+    });
+    const btn = overlay.querySelector('button');
+    Object.assign(btn.style, {
+      width: '120px',
+      height: '120px',
+      'fontSize': '48px',
+      'borderRadius': '999px',
+      border: 'none',
+      cursor: 'pointer',
+      background: 'linear-gradient(135deg,#c8102e,#ff3b3b)',
+      color: '#fff',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.6)'
+    });
+    document.body.appendChild(overlay);
+
+    // click del bottone: prova a riprodurre e rimuove overlay
+    btn.addEventListener('click', async () => {
+      try {
+        await player.play();
+        setEqualizer(true);
+        overlay.remove();
+      } catch (e) {
+        // se fallisce ancora mantieni overlay e mostra messaggio breve
+        btn.textContent = 'Riprova';
+        console.warn('Play fallito:', e);
+      }
+    }, { once: true });
+
+    // anche se l'utente preme play sul player nativo, rimuoviamo overlay
+    player.addEventListener('play', () => {
+      setEqualizer(true);
+      if (document.getElementById('playOverlay')) document.getElementById('playOverlay').remove();
+    }, { once: true });
+  }
+
+  // pause event
+  player.addEventListener('pause', () => {
+    setEqualizer(false);
+  });
+
+  // gestione errori stream
+  player.addEventListener('error', () => {
+    const wrap = player.closest('.player-wrap');
+    wrap.innerHTML = '<p style="margin:0">Impossibile caricare lo stream. Prova ad aprire l\\'URL direttamente o verifica la connessione.</p>';
+  });
+
+  // avvia tentativo autoplay al caricamento
+  window.addEventListener('load', () => {
+    // settiamo equalizer 'paused' all'inizio per sicurezza
+    setEqualizer(false);
+    tryAutoplay();
+  });
+</script>
+
+</body>
+</html>
